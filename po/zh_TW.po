@@ -1008,6 +1008,12 @@ msgstr "應用外觀跟隨終端主題"
 msgid "Apply the terminal theme (background, foreground, palette) to the entire app appearance."
 msgstr "將終端主題（背景色、前景色、調色板）套用到整個應用的介面外觀。"
 
+msgid "Search Themes..."
+msgstr "搜尋主題…"
+
+msgid "No matching themes"
+msgstr "沒有符合的主題"
+
 msgid "Background"
 msgstr "背景色"
 

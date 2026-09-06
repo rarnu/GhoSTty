@@ -568,6 +568,7 @@ struct SettingsView: View {
     var onCancel: () -> Void = {}
 
     @State private var selectedCategory: SettingsCategory = .general
+    @State private var themeSearchText: String = ""
 
     /// A nullable binding for SwiftUI `List(selection:)` that ignores
     /// attempts to clear the selection (e.g. clicking empty space in the
@@ -729,9 +730,43 @@ struct SettingsView: View {
         return Bundle.main.resourceURL?.appendingPathComponent("themes/" + filename)
     }
 
+    /// 按搜索词过滤后的主题名列表（大小写不敏感的包含匹配）。
+    private var filteredThemeNames: [String] {
+        let query = themeSearchText.trimmingCharacters(in: .whitespaces)
+        guard !query.isEmpty else { return bundledThemeNames }
+        return bundledThemeNames.filter { $0.range(of: query, options: .caseInsensitive) != nil }
+    }
+
+    /// 主题搜索框，样式与侧边栏搜索框一致。
+    private var themeSearchBar: some View {
+        HStack(spacing: 4) {
+            Image(systemName: "magnifyingglass")
+                .font(.system(size: 11))
+                .foregroundColor(appTheme.secondaryForeground)
+            TextField("Search Themes...".localized, text: $themeSearchText)
+                .textFieldStyle(.plain)
+                .font(.system(size: 12))
+            if !themeSearchText.isEmpty {
+                Button(action: { themeSearchText = "" }) {
+                    Image(systemName: "xmark.circle.fill")
+                        .font(.system(size: 11))
+                        .foregroundColor(appTheme.secondaryForeground)
+                }
+                .buttonStyle(.plain)
+                .help("Clear Search".localized)
+            }
+        }
+        .padding(.horizontal, 6)
+        .padding(.vertical, 4)
+        .background(appTheme.controlBackground.opacity(0.6))
+        .cornerRadius(6)
+    }
+
     private var themeSection: some View {
         VStack(alignment: .leading, spacing: 16) {
             sectionHeader("Theme")
+
+            themeSearchBar
 
             let columns = [
                 GridItem(.flexible(), spacing: 16),
@@ -741,7 +776,7 @@ struct SettingsView: View {
 
             ScrollView {
                 LazyVGrid(columns: columns, spacing: 16) {
-                    ForEach(bundledThemeNames, id: \.self) { name in
+                    ForEach(filteredThemeNames, id: \.self) { name in
                         ThemeCell(
                             name: name,
                             previewURL: themePreviewURL(name),
@@ -751,6 +786,14 @@ struct SettingsView: View {
                             model.theme = name
                         }
                     }
+                }
+
+                if filteredThemeNames.isEmpty {
+                    Text("No matching themes".localized)
+                        .font(.system(size: 12))
+                        .foregroundColor(appTheme.secondaryForeground)
+                        .frame(maxWidth: .infinity)
+                        .padding(.top, 40)
                 }
             }
         }
