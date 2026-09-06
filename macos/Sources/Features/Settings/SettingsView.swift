@@ -621,8 +621,14 @@ struct SettingsView: View {
         List(SettingsCategory.allCases, selection: selectedCategoryBinding) { category in
             Label(category.title, systemImage: category.icon)
                 .font(.system(size: 15))
+                .frame(maxWidth: .infinity, alignment: .leading)
                 .frame(height: 38)
                 .tag(category)
+                .listRowBackground(
+                    RoundedRectangle(cornerRadius: 6)
+                        .fill(selectedCategory == category ? appTheme.selectionBackground : Color.clear)
+                        .padding(.horizontal, 4)
+                )
         }
         .listStyle(.plain)
         .scrollContentBackground(.hidden)
